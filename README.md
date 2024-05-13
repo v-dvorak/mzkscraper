@@ -54,7 +54,7 @@ If the query looks ok and the page loads with some results when you open it manu
 
 ## Motivation
 
-The whole digital database implements the really nice and convenient to use [IIIF API](https://iiif.io/api/image/3.0/). There is only two problems with it:
+The whole digital database implements the really nice and convenient to use [IIIF API](https://iiif.io/api/image/3.0/). There is only one problem with it:
 
 I was not able to find any documentation on how to use this api to search for documents using filters. (Like "give me IDs to all sheet music documents".) And seemingly there is no other option.
 
@@ -67,5 +67,5 @@ In these classes it looks for `href` and in it for `uuid` substring, when a clas
 ## Useful links
 
 - [IIIF Digital Library docs](https://iiif.digitalniknihovna.cz/)
-- [downloading data for OMR model](https://github.com/v-dvorak/omr-layout-analysis)
+- [downloading data from MZK for OMR tasks](https://github.com/v-dvorak/omr-layout-analysis)
 - [how to use MZK Digital Library](https://www.mzk.cz/sluzby/navody/digitalni-knihovna-mzk) - long read, only in Czech
