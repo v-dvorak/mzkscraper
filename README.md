@@ -2,7 +2,13 @@
 
 MZK Scraper is a web scraper that enables users to search through [Moravska Zemska Knihovna](https://www.digitalniknihovna.cz/mzk) 's scanned documents based on query parameters.
 
-The `MZKScraper` class and its methods are used to retrieve IDs of documents that align with the user's specified criteria. After this, these IDs can be used with [IIIF](https://iiif.io/) to retrieve any information about the documents, e.g. the method `get_pages_in_document` returns IDs of document's pages that can be later used to download the pages.
+The `MZKScraper` class and its methods are used to retrieve IDs of documents that align with the user's specified criteria. After this, these IDs can be used with [IIIF](https://iiif.io/) to retrieve any information about the documents, e.g. the method `get_pages_in_document` returns IDs of document's pages that can be later used to download the pages using the `download_image` method.
+
+### Other features
+
+`get_pages_in_document` has multiple parameters (`valid_labels`, `label_preprocessing`, `label_formatting`) that help to reject pages before processing them any further.
+
+Passing the document ID (and optional page ID) to `open_in_browser` method opens up the specified document (and page) in default browser.
 
 ## Usage
 
@@ -27,7 +33,17 @@ pages_in_first_document = scraper.get_pages_in_document(results[0])
 # source, page_id and label
 for i, page in enumerate(pages_in_first_document):
     print(f"{i+1}: {page.page_id} label: {page.label}")
+
+# download first page of the first document
+scraper.download_image(
+    pages_in_first_document[0].page_id,
+    "this_is_first_page_of_the_document.jpg",
+    Path("path/to/the/your_dir"),
+    verbose=True
+)
 ```
+
+### [How does it work?](./docs/README.md)
 
 ## Supported query parameters
 
@@ -61,7 +77,6 @@ If the query looks ok and the page loads with some results when you open it manu
 
 ## Useful links
 
-- [How does it work?](./docs/README.md)
 - [IIIF Digital Library docs](https://iiif.digitalniknihovna.cz/)
 - [downloading data from MZK for OMR tasks](https://github.com/v-dvorak/omr-layout-analysis)
 - [how to use MZK Digital Library](https://www.mzk.cz/sluzby/navody/digitalni-knihovna-mzk) - long read, only in Czech

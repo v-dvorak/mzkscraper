@@ -10,6 +10,9 @@ from bs4 import BeautifulSoup
 
 import inflection
 from typing import Callable
+from pathlib import Path
+import requests
+import webbrowser
 
 from . import ScraperUtils
 from .PageData import PageData
@@ -20,6 +23,8 @@ class MZKScraper:
         # precompile regex
         self.uuid_pattern = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
         self.iiif_request_url = "https://iiif.digitalniknihovna.cz/mzk/uuid:"
+        self.iiif_download_url = "https://api.kramerius.mzk.cz/search/iiif/uuid:{img_id}/full/{size}/0/default.jpg"
+        self.mzk_view = "https://www.digitalniknihovna.cz/mzk/view/uuid:{doc_id}?page=uuid:{page_id}"
 
     @staticmethod
     def scrape_for_class(url, timeout: float = 60,
@@ -210,3 +215,44 @@ class MZKScraper:
                     continue
 
         return output
+
+    def _get_img_request_url(self, img_id: str, size: str) -> str:
+        return self.iiif_download_url.format(img_id=img_id, size=size)
+
+    def download_image(self, img_id: str, file_name: str, output_dir: Path,
+                       size: str = "^!640,640",
+                       verbose=False):
+        """
+        Given an image ID downloads it to specified directory.
+
+        :param img_id: image ID
+        :param file_name: output file name, with extension
+        :param output_dir: output directory
+        :param size: size of image, for more see IIIF docs
+        :param verbose: verbose mode
+        """
+        # create the output directory if it doesn't exist
+        output_dir.mkdir(exist_ok=True, parents=True)
+
+        # download the corresponding image using url
+        url = self._get_img_request_url(img_id, size)
+        response = requests.get(url)
+        if response.status_code == 200:
+            filepath = Path(output_dir / file_name)
+            # write to file
+            with open(filepath, 'wb') as file:
+                file.write(response.content)
+            if verbose:
+                print(f"Image downloaded: {file_name}")
+        else:
+            print(f"Error: {response.status_code}")
+
+    def open_in_browser(self, doc_id: str, page_id: str = None):
+        """
+        Given a document ID and a page ID, opens the document in MZK in your default browser.
+        Page ID is optional.
+
+        :param doc_id: document ID
+        :param page_id: page ID
+        """
+        webbrowser.open(self.mzk_view.format(doc_id=doc_id, page_id=page_id))
