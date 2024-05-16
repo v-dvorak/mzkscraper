@@ -12,7 +12,10 @@ Passing the document ID (and optional page ID) to `open_in_browser` method opens
 
 ## Usage
 
-See [`example.py`](./example.py).
+Download this project or use it as a submodule in your own project, see [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
+Set up a virtual environment and install necessary modules from [requirements.txt](./requirements.txt).
+
+For example usage see [`example.py`](./example.py).
 
 ```python
 from path/to/the/scraper/file import MZKScraper
@@ -38,7 +41,7 @@ for i, page in enumerate(pages_in_first_document):
 scraper.download_image(
     pages_in_first_document[0].page_id,
     "this_is_first_page_of_the_document.jpg",
-    Path("path/to/the/your_dir"),
+    Path("path/to/your_dir"),
     verbose=True
 )
 ```
