@@ -50,6 +50,7 @@ class MZKScraper:
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")
             options.add_argument(f"--log-level={log_level}")
+            options.add_experimental_option("excludeSwitches", ["enable-logging"])
             driver = webdriver.Chrome(options=options)
 
             # load page
@@ -259,3 +260,60 @@ class MZKScraper:
         :param page_id: page ID
         """
         webbrowser.open(self.mzk_view.format(doc_id=doc_id, page_id=page_id))
+
+    @staticmethod
+    def scrape_for_page_count(url, timeout: float = 60,
+                              search_for: str = "waves-effect ng-star-inserted",
+                              wait_for=EC.any_of(
+                                  EC.presence_of_element_located((By.CLASS_NAME, "app-card-content-wrapper")),
+                                  EC.presence_of_element_located((By.CLASS_NAME, "app-alert")),
+                                  EC.presence_of_element_located((By.CLASS_NAME, "waves-effect ng-star-inserted"))
+                              ),
+                              log_level: int = 3) -> int:
+        """
+        Returns the number of pages occupied by the search results. Returns `-1` when unsuccessful.
+
+        Loads first page of specified query, waits for `app-card-content-wrapper` or `app-alert` classes to load or for specified time
+        and then searches for a `waves-effect ng-star-inserted` class.
+
+        :param url: page that will be scraped
+        :param timeout: timeout in seconds
+        :param search_for: class that will be searched for
+        :param wait_for: class that will be waited for
+        :param log_level: logging level
+        """
+        try:
+            # initialize a headless browser with Selenium
+            options = webdriver.ChromeOptions()
+            options.add_argument("--headless")
+            options.add_argument(f"--log-level={log_level}")
+            driver = webdriver.Chrome(options=options)
+
+            # load page
+            driver.get(url)
+
+            # wait for dynamic loading
+            WebDriverWait(driver, timeout).until(
+                wait_for
+            )
+
+            # parse html
+            page_source = driver.page_source
+            soup = BeautifulSoup(page_source, "html.parser")
+            element_search_results = soup.find_all(class_=search_for)
+
+            # search for href attributes
+            page_nums = [element.find("a").contents for element in element_search_results]
+
+            # edge case, when results fit on one page, buttons with page numbers do not appear
+            if len(page_nums) == 0:
+                return 1
+            else:
+                page_nums = [int(num[0]) for num in page_nums]
+                return max(page_nums)
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return -1
+        finally:
+            driver.quit()
