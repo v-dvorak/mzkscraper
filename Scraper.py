@@ -114,7 +114,6 @@ class MZKScraper:
         if "page" not in query:
             query += "&page={page_num}"
 
-        print(query)
         pages.sort()
 
         found_documents = []
