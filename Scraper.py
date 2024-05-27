@@ -93,7 +93,7 @@ class MZKScraper:
                     output.append(match.group())
         return output
 
-    def get_search_results(self, query: str, pages: list[int] = None,
+    def get_search_results(self, query: str, pages: list[int] | str = None,
                            timeout: float = 60, max_res_per_page: int = 60,
                            verbose: bool = False) -> list[str]:
         """
@@ -111,11 +111,14 @@ class MZKScraper:
         """
         if pages is None:
             pages = [1]
+        elif pages == "all":
+            total = self.scrape_for_page_count(query, timeout=timeout)
+            pages = range(1, total)
+
+        pages.sort()
 
         if "page" not in query:
             query += "&page={page_num}"
-
-        pages.sort()
 
         found_documents = []
         for page_num in tqdm(pages, disable=verbose):
