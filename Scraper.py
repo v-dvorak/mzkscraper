@@ -1,6 +1,7 @@
 import urllib.parse
 import datetime
 import re
+from tqdm import tqdm
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -92,7 +93,8 @@ class MZKScraper:
         return output
 
     def get_search_results(self, query: str, pages: list[int] = None,
-                           timeout: float = 60, max_res_per_page: int = 60) -> list[str]:
+                           timeout: float = 60, max_res_per_page: int = 60,
+                           verbose: bool = False) -> list[str]:
         """
         Given a search query to MZK loads the query and searches for documents inside this page. MZK search results
         are loaded dynamically.
@@ -102,6 +104,7 @@ class MZKScraper:
         :param timeout: timeout in seconds, if method doesn't return anything try to increase this timeout
         :param max_res_per_page: maximum results expected per page, if number of results is less than max_res_per_page
         a warning will be logged
+        :param verbose: make method verbose
 
         :return: list of found documents IDs
         """
@@ -111,10 +114,11 @@ class MZKScraper:
         if "page" not in query:
             query += "&page={page_num}"
 
+        print(query)
         pages.sort()
 
         found_documents = []
-        for page_num in pages:
+        for page_num in tqdm(pages, disable=verbose):
             hrefs = self.scrape_for_class(query.format(page_num=page_num), timeout=timeout)
             hrefs = self._clean_up_hrefs(hrefs)
             if len(hrefs) == 0:
@@ -146,7 +150,7 @@ class MZKScraper:
 
         # format request and turn it into valid url (substitute special characters)
         return urllib.parse.quote_plus(
-            "https://www.digitalniknihovna.cz/mzk/search?q={text_query}&access={access}&keywords={keywords}&authors={authors}&languages={languages}&licenses={licenses}&locations={locations}&publishers={publishers}&places={places}&genres={genres}&doctypes={doctypes}&from={published_from}&to={published_to}".format(
+            "https://www.digitalniknihovna.cz/mzk/search?q={text_query}&access={access}&keywords={keywords}&authors={authors}&languages={languages}&licences={licenses}&locations={locations}&publishers={publishers}&places={places}&genres={genres}&doctypes={doctypes}&from={published_from}&to={published_to}".format(
                 text_query=text_query, access=access, keywords=keywords, authors=authors, languages=languages,
                 licenses=licenses, locations=locations, publishers=publishers, places=places, genres=genres,
                 doctypes=doctypes, published_from=published_from, published_to=published_to),
