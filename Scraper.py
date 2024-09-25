@@ -17,15 +17,19 @@ import webbrowser
 
 from . import ScraperUtils
 from .PageData import PageData
+from .MZKBase import MZKBase
 
 
-class MZKScraper:
+class MZKScraper(MZKBase):
     def __init__(self):
+        super().__init__()
+    # def __init__(self):
+    #     pass
         # precompile regex
-        self.uuid_pattern = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
-        self.iiif_request_url = "https://iiif.digitalniknihovna.cz/mzk/uuid:"
-        self.iiif_download_url = "https://api.kramerius.mzk.cz/search/iiif/uuid:{img_id}/full/{size}/0/default.jpg"
-        self.mzk_view = "https://www.digitalniknihovna.cz/mzk/view/uuid:{doc_id}?page=uuid:{page_id}"
+        # self.uuid_pattern = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+        # self.iiif_request_url = "https://iiif.digitalniknihovna.cz/mzk/uuid:"
+        # self.iiif_download_url = "https://api.kramerius.mzk.cz/search/iiif/uuid:{img_id}/full/{size}/0/default.jpg"
+        # self.mzk_view = "https://www.digitalniknihovna.cz/mzk/view/uuid:{doc_id}?page=uuid:{page_id}"
 
     @staticmethod
     def scrape_for_class(url, timeout: float = 60,
@@ -262,7 +266,7 @@ class MZKScraper:
         :param doc_id: document ID
         :param page_id: page ID
         """
-        webbrowser.open(self.mzk_view.format(doc_id=doc_id, page_id=page_id))
+        webbrowser.open(self.mzk_view_page.format(doc_id=doc_id, page_id=page_id))
 
     @staticmethod
     def scrape_for_page_count(url, timeout: float = 60,
