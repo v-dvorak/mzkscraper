@@ -1,6 +1,9 @@
 from pathlib import Path
 
 from .Scraper import MZKScraper
+from .Citations.CitationGenerator import MZKCitationGenerator
+from .Citations.BibTeX import CitationBibTeX
+
 
 # initialize scaper class
 scraper = MZKScraper()
@@ -46,12 +49,12 @@ for i, page in enumerate(pages_in_first_document):
 print()
 print("DOWNLOAD SINGLE PAGE")
 # download first page of the first document
-scraper.download_image(
-    pages_in_first_document[0].page_id,
-    "this_is_first_page_of_the_document.jpg",
-    Path("path/to/the/your_dir"),
-    verbose=True
-)
+# scraper.download_image(
+#     pages_in_first_document[0].page_id,
+#     "this_is_first_page_of_the_document.jpg",
+#     Path("path/to/the/your_dir"),
+#     verbose=True
+# )
 
 # VIEW PAGE ONLINE example
 # from first document open the fifth page online
@@ -70,3 +73,16 @@ print(query)
 results = scraper.get_search_results(query, timeout=60)
 print(f"Found {len(results)} results:")
 print(*results, sep="\n")
+
+# GENERATE CITATIONS
+# initialize citation generator
+citgen = MZKCitationGenerator()
+doc_id = "c5a386c9-3c42-4658-a968-b7971c873cfd"
+page_id = "561d95c1-3862-4a49-9ff9-9bb42599e2c9"
+
+# retrieve info
+parsed_data = citgen.retrieve_citation_data_from_document_metadata(doc_id, page_id)
+
+if parsed_data:
+    print(parsed_data.get_iso_690_citation())
+    print(parsed_data.get_bibtex_citation())
