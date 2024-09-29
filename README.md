@@ -4,6 +4,8 @@ MZK Scraper is a web scraper that enables users to search through [Moravska Zems
 
 The `MZKScraper` class and its methods are used to retrieve IDs of documents that align with the user's specified criteria. After this, these IDs can be used with [IIIF](https://iiif.io/) to retrieve any information about the documents, e.g. the method `get_pages_in_document` returns IDs of document's pages that can be later used to download the pages using the `download_image` method.
 
+The latest added features now make it possible to generate `ISO690` and `BibTeX` citations from document ID (and optionally page ID).
+
 ### Other features
 
 `get_pages_in_document` has multiple parameters (`valid_labels`, `label_preprocessing`, `label_formatting`) that help to reject pages before processing them any further.
