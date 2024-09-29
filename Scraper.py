@@ -1,6 +1,5 @@
 import urllib.parse
 import datetime
-import re
 from tqdm import tqdm
 
 from selenium import webdriver
@@ -23,13 +22,6 @@ from .MZKBase import MZKBase
 class MZKScraper(MZKBase):
     def __init__(self):
         super().__init__()
-    # def __init__(self):
-    #     pass
-        # precompile regex
-        # self.uuid_pattern = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
-        # self.iiif_request_url = "https://iiif.digitalniknihovna.cz/mzk/uuid:"
-        # self.iiif_download_url = "https://api.kramerius.mzk.cz/search/iiif/uuid:{img_id}/full/{size}/0/default.jpg"
-        # self.mzk_view = "https://www.digitalniknihovna.cz/mzk/view/uuid:{doc_id}?page=uuid:{page_id}"
 
     @staticmethod
     def scrape_for_class(url, timeout: float = 60,
@@ -280,8 +272,8 @@ class MZKScraper(MZKBase):
         """
         Returns the number of pages occupied by the search results. Returns `-1` when unsuccessful.
 
-        Loads first page of specified query, waits for `app-card-content-wrapper` or `app-alert` classes to load or for specified time
-        and then searches for a `waves-effect ng-star-inserted` class.
+        Loads first page of specified query, waits for `app-card-content-wrapper` or `app-alert` classes to load or for
+        specified time and then searches for a `waves-effect ng-star-inserted` class.
 
         :param url: page that will be scraped
         :param timeout: timeout in seconds
