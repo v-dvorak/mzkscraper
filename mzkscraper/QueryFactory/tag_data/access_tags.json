@@ -1,0 +1,5 @@
+{
+    "open": "(licenses:mzk_public-muo OR contains_licenses:mzk_public-muo OR licenses_of_ancestors:mzk_public-muo OR licenses:mzk_public-contract OR contains_licenses:mzk_public-contract OR licenses_of_ancestors:mzk_public-contract OR licenses:public OR contains_licenses:public OR licenses_of_ancestors:public) ",
+    "login": "(licenses:dnnto OR contains_licenses:dnnto OR licenses_of_ancestors:dnnto)",
+    "terminal": "((licenses:dnntt OR contains_licenses:dnntt OR licenses_of_ancestors:dnntt OR licenses:onsite OR contains_licenses:onsite OR licenses_of_ancestors:onsite OR licenses:onsite-sheetmusic OR contains_licenses:onsite-sheetmusic OR licenses_of_ancestors:onsite-sheetmusic) AND NOT (licenses:dnnto OR contains_licenses:dnnto OR licenses_of_ancestors:dnnto))"
+}

@@ -1,0 +1,9 @@
+{
+    "public": "(licenses:public OR contains_licenses:public OR licenses_of_ancestors:public)",
+    "mzk_public-muo": "(licenses:mzk_public-muo OR contains_licenses:mzk_public-muo OR licenses_of_ancestors:mzk_public-muo)",
+    "dnnto": "(licenses:dnnto OR contains_licenses:dnnto OR licenses_of_ancestors:dnnto)",
+    "mzk_public-contract": "(licenses:mzk_public-contract OR contains_licenses:mzk_public-contract OR licenses_of_ancestors:mzk_public-contract)",
+    "onsite-sheetmusic": "(licenses:onsite-sheetmusic OR contains_licenses:onsite-sheetmusic OR licenses_of_ancestors:onsite-sheetmusic)",
+    "licences=dnntt": "(licenses:dnntt OR contains_licenses:dnntt OR licenses_of_ancestors:dnntt)",
+    "onsite": "(licenses:onsite OR contains_licenses:onsite OR licenses_of_ancestors:onsite)"
+}

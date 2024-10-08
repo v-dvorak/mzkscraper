@@ -13,11 +13,13 @@ from typing import Callable
 from . import ScraperUtils
 from .MZKBase import MZKBase
 from .PageData import PageData
+from .QueryFactory.QueryFactory import QueryFactory
 
 
 class MZKScraper(MZKBase):
     def __init__(self):
         super().__init__()
+        self.query_factory = QueryFactory()
 
     def retrieve_document_ids_by_query(
             self,
@@ -72,8 +74,42 @@ class MZKScraper(MZKBase):
         )
         return int(result["response"]["numFound"])
 
+    def construct_query_with_qf(
+            self,
+            access: str = None,
+            licences: list[str] | str = None,
+            doctypes: list[str] | str = None,
+            published_from: str | int = None,
+            published_to: str | int = None,
+
+            places: list[str] | str = None,
+            publishers: list[str] | str = None,
+            locations: list[str] | str = None,
+            languages: list[str] | str = None,
+            keywords: list[str] | str = None,
+            authors: list[str] | str = None,
+            geonames: list[str] | str = None,
+            genres: list[str] | str = None
+    ) -> str:
+        return self.query_factory.create_query(
+            access=access,
+            licences=licences,
+            doctypes=doctypes,
+            published_from=published_from,
+            published_to=published_to,
+
+            places=places,
+            publishers=publishers,
+            locations=locations,
+            languages=languages,
+            keywords=keywords,
+            authors=authors,
+            geonames=geonames,
+            genres=genres,
+        )
+
     @staticmethod
-    def create_search_query(
+    def retrieve_query_directly_from_mzk(
             text_query: str = "",
             access: str = "",
             keywords: str = "",

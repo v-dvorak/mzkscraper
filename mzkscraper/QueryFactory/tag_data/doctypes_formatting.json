@@ -1,0 +1,12 @@
+{
+    "archive": "model:archive",
+    "collection": "model:colection",
+    "convolute": "model:convolute",
+    "graphic": "model:graphic",
+    "manuscript": "model:manuscript",
+    "map": "model:map",
+    "monograph": "(model:monograph OR model:monographunit)",
+    "periodical": "model:periodical",
+    "sheetmusic": "model:sheetmusic",
+    "soundrecording": "model:soundrecording"
+}
