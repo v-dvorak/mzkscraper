@@ -21,18 +21,18 @@ class MZKScraper(MZKBase):
         super().__init__()
         self.query_factory = QueryFactory()
 
-    def retrieve_document_ids_by_query(
+    def retrieve_document_ids_by_solr_query(
             self,
             query: str,
             requested_document_count: int | str = "all",
             batch_size: int = 100,
     ) -> list[str]:
         """
-        Search documents by query in MZK. Query has to be encoded and in a special format.
+        Search documents by Solr query in MZK.
 
-        :param query: MZK search query, encoded
+        :param query: search query in Solr format
         :param requested_document_count: requested number of pages, "all" for all documents
-        :param batch_size: batch size, defaults to 100; this many documents will be requested at once.
+        :param batch_size: batch size, defaults to 100; this many documents will be requested at once
         """
         # set number of document ids to retrieve
         total_document_count = self._get_number_of_documents_available(query)
@@ -65,16 +65,16 @@ class MZKScraper(MZKBase):
     @staticmethod
     def _get_number_of_documents_available(query: str) -> int:
         """
-        Returns the number of documents found by query in MZK.
+        Returns the number of documents available in MZK based on Solr query.
 
-        :param query: MZK search query, encoded
+        :param query: Solr query
         """
         result = ScraperUtils.get_json_from_url(
             "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?q=*:*&fq=" + query + "&rows=0&start=0"
         )
         return int(result["response"]["numFound"])
 
-    def construct_query_with_qf(
+    def construct_solr_query_with_qf(
             self,
             access: str = None,
             licences: list[str] | str = None,
@@ -91,6 +91,9 @@ class MZKScraper(MZKBase):
             geonames: list[str] | str = None,
             genres: list[str] | str = None
     ) -> str:
+        """
+        Constructs Solr query for document retrieval using reverse-engineered QueryFactory.
+        """
         return self.query_factory.create_query(
             access=access,
             licences=licences,
@@ -109,7 +112,7 @@ class MZKScraper(MZKBase):
         )
 
     @staticmethod
-    def retrieve_query_directly_from_mzk(
+    def construct_hm_query(
             text_query: str = "",
             access: str = "",
             keywords: str = "",
@@ -125,7 +128,7 @@ class MZKScraper(MZKBase):
             published_to: str | int = "",
     ) -> str:
         """
-        Based on inputted params returns a completed search query URL for MZK.
+        Based on inputted params returns a completed human-readable URL.
         """
         # both years have to be filled for the filters to work
         if published_from != "" and published_to == "":
@@ -153,11 +156,11 @@ class MZKScraper(MZKBase):
         )
 
     @staticmethod
-    def transform_search_query(query: str, timeout: int = 3) -> str:
+    def transform_query_from_hm_to_solr_using_mzk(query: str, timeout: int = 3) -> str:
         """
-        Dynamically loads MZK search page, triggering an XHR request that includes the transformed search query.
+        Dynamically loads MZK search page, triggering an XHR request that includes the wanted Solr search query.
 
-        :param query: MZK search query
+        :param query: human-readable search query
         :param timeout: timeout in seconds, defaults to 3
         """
         chrome_options = webdriver.ChromeOptions()
