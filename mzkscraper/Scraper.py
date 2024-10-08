@@ -13,13 +13,13 @@ from typing import Callable
 from . import ScraperUtils
 from .MZKBase import MZKBase
 from .PageData import PageData
-from .QueryFactory.QueryFactory import QueryFactory
+from .QueryFactory.QueryFactory import SolrQueryFactory
 
 
 class MZKScraper(MZKBase):
     def __init__(self):
         super().__init__()
-        self.query_factory = QueryFactory()
+        self.query_factory = SolrQueryFactory()
 
     def retrieve_document_ids_by_solr_query(
             self,
@@ -28,9 +28,9 @@ class MZKScraper(MZKBase):
             batch_size: int = 100,
     ) -> list[str]:
         """
-        Search documents by Solr query in MZK.
+        Search documents by Solr solr_query in MZK.
 
-        :param query: search query in Solr format
+        :param query: search solr_query in Solr format
         :param requested_document_count: requested number of pages, "all" for all documents
         :param batch_size: batch size, defaults to 100; this many documents will be requested at once
         """
@@ -65,9 +65,9 @@ class MZKScraper(MZKBase):
     @staticmethod
     def _get_number_of_documents_available(query: str) -> int:
         """
-        Returns the number of documents available in MZK based on Solr query.
+        Returns the number of documents available in MZK based on Solr solr_query.
 
-        :param query: Solr query
+        :param query: Solr solr_query
         """
         result = ScraperUtils.get_json_from_url(
             "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?q=*:*&fq=" + query + "&rows=0&start=0"
@@ -92,7 +92,7 @@ class MZKScraper(MZKBase):
             genres: list[str] | str = None
     ) -> str:
         """
-        Constructs Solr query for document retrieval using reverse-engineered QueryFactory.
+        Constructs Solr solr_query for document retrieval using reverse-engineered QueryFactory.
         """
         return self.query_factory.create_query(
             access=access,
@@ -158,9 +158,9 @@ class MZKScraper(MZKBase):
     @staticmethod
     def transform_query_from_hm_to_solr_using_mzk(query: str, timeout: int = 3) -> str:
         """
-        Dynamically loads MZK search page, triggering an XHR request that includes the wanted Solr search query.
+        Dynamically loads MZK search page, triggering an XHR request that includes the wanted Solr search solr_query.
 
-        :param query: human-readable search query
+        :param query: human-readable search solr_query
         :param timeout: timeout in seconds, defaults to 3
         """
         chrome_options = webdriver.ChromeOptions()

@@ -5,7 +5,7 @@ import urllib.parse
 from ..Citations.CitationUtils import join_non_empty
 
 
-class MZKQueryFactory:
+class SolrQueryFactory:
     def __init__(self):
         self.query_base = "(model:monograph OR model:periodical OR (model:collection AND collection.is_standalone:true) OR model:graphic OR model:map OR model:sheetmusic OR model:soundrecording OR model:archive OR model:manuscript OR model:convolute OR model:monographunit)"
         self.access: dict[str, str] = json.load(open('mzkscraper/QueryFactory/tag_data/access_tags.json', 'r'))
@@ -86,7 +86,7 @@ class MZKQueryFactory:
                 self._get_date_part(published_from, published_to) if published_from is not None else "",
 
                 *[
-                    MZKQueryFactory._get_others_part(prefix, data) for prefix, data in [
+                    SolrQueryFactory._get_others_part(prefix, data) for prefix, data in [
                         ("publication_places.search:", places),
                         ("publishers.search:", publishers),
                         ("physical_locations.facet:", locations),
