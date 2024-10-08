@@ -68,3 +68,9 @@ class Citation(ICitation):
             default_author=default_author,
             tag_gen=tag_gen
         )
+
+    def __str__(self) -> str:
+        return '%s(%s)' % (
+            type(self).__name__,
+            ', '.join('%s=%s' % item for item in vars(self).items())
+        )
