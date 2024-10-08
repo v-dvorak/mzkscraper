@@ -1,13 +1,18 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='mzkscraper',  # Name of your library
-    version='1.0',  # Version of your library
-    packages=find_packages(),  # Automatically find all packages in the directory
-    install_requires=[],  # Add your dependencies here, if any
-    # include_package_data=True,  # Include other files specified in MANIFEST.in
-    # author='Your Name',
-    # author_email='your.email@example.com',
-    # description='A brief description of your library',
-    # url='https://github.com/your-username/your-library',  # Link to your repository
+    name="mzkscraper",
+    version='1.0',
+    packages=find_packages(),
+    install_requires=[
+        "inflection==0.5.1",
+        "nltk==3.9.1",
+        "Pillow==10.4.0",
+        "Requests==2.32.3",
+        "selenium_wire==5.1.0",
+        "setuptools==65.5.0",
+        "tqdm==4.66.1",
+    ],
+    author="Vojtech Dvorak",
+    url="https://github.com/v-dvorak/mzkscraper",
 )

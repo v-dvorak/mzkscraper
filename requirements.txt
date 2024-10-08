@@ -1,6 +1,7 @@
-beautifulsoup4==4.12.3
 inflection==0.5.1
 nltk==3.9.1
+Pillow==10.4.0
 Requests==2.32.3
-selenium==4.25.0
+selenium_wire==5.1.0
+setuptools==65.5.0
 tqdm==4.66.1
