@@ -4,7 +4,7 @@ MZKScraper is a Python API wrapper that enables users to search through [Moravsk
 
 The `MZKScraper` class and its methods are used to retrieve UUIDs of documents that correspond to user's specified criteria. After this, these UUIDs can be used to retrieve any information about the documents via [IIIF](https://iiif.io/), e.g. the method `get_pages_in_document` returns UUIDs of document's pages that can be later used to download the pages using the `download_image` method.
 
-The latest added features remove the necessity to dynamically load MZK webpage to get a Solr query.
+The latest update removes the necessity to dynamically load MZK webpage to get a Solr query.
 
 ### Citations
 
@@ -67,6 +67,9 @@ Sometimes an interaction with MZK through IIIF may result end up raising `4xx` o
 
 - [valid languages for Solr query](docs/languages.json)
 - [valid physical locations for Solr query](docs/physical_locations.json)
+
+
+- [Solr request generator from Kramerius](https://github.com/ceskaexpedice/kramerius-web-client/blob/master/src/app/services/solr.service.ts)
 
 ## Useful links
 
