@@ -50,7 +50,7 @@ class MZKScraper(MZKBase):
 
             # request ids
             result = ScraperUtils.get_json_from_url(
-                "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?q=*:*&fq="
+                "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?"
                 + query
                 + f"&rows={min(batch_size, to_retrieve)}&start={offset}"
             )
@@ -70,12 +70,14 @@ class MZKScraper(MZKBase):
         :param query: Solr solr_query
         """
         result = ScraperUtils.get_json_from_url(
-            "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?q=*:*&fq=" + query + "&rows=0&start=0"
+            "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?" + query + "&rows=0&start=0"
         )
         return int(result["response"]["numFound"])
 
     def construct_solr_query_with_qf(
             self,
+            text_query=None,
+
             access: str = None,
             licences: list[str] | str = None,
             doctypes: list[str] | str = None,
@@ -95,6 +97,7 @@ class MZKScraper(MZKBase):
         Constructs Solr solr_query for document retrieval using reverse-engineered QueryFactory.
         """
         return self.query_factory.create_query(
+            text_query=text_query,
             access=access,
             licences=licences,
             doctypes=doctypes,
@@ -183,7 +186,8 @@ class MZKScraper(MZKBase):
 
     @staticmethod
     def _clean_up_query(query: str) -> str:
-        return query.split("&")[1][3:]
+        return query.replace("https://api.kramerius.mzk.cz/search/api/client/v7.0/search?", "").replace(
+            "&rows=60&start=0", "")
 
     @staticmethod
     def _strip_page_label(label: str) -> str:
