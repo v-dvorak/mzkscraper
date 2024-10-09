@@ -17,6 +17,26 @@ class MZKCitationGenerator(MZKBase):
     def _get_image_id_from_mzk_json(self, img_json: dict) -> str:
         return self.uuid_pattern.search(img_json["thumbnail"][0]["id"]).group(0)
 
+    @staticmethod
+    def get_iso_690_citation_directly(uuid: str, italic=True) -> str:
+        """
+        Using MZK API, can cite document or a specific page. Returns plain text citation.
+
+        :param uuid: document or page id
+        :param italic: whether to include italic text styling, default is True
+        """
+        citation_url = "https://citace.kramerius.cloud/v1/kramerius?url=https://api.kramerius.mzk.cz&uuid=uuid:{doc_id}&format=html&lang=en&k7=true"
+
+        response = requests.get(citation_url.format(doc_id=uuid))
+
+        if response.status_code == 200:
+            if not italic:
+                return response.text.replace("<i>", "").replace("</i>", "")
+            return response.text
+        else:
+            print(f"Returned {response.status_code}")
+            return None
+
     def get_page_number_from_document(self, doc_id: str, page_id: str) -> int:
         """
         Requests metadata of a document via `doc_id` from library and tries to match page number to `page_id`.
