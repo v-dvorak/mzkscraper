@@ -1,54 +1,33 @@
-# MZK Scraper
+# MZKScraper
 
-MZK Scraper is a web scraper that enables users to search through [Moravska Zemska Knihovna](https://www.digitalniknihovna.cz/mzk) 's scanned documents based on query parameters.
+MZKScraper is a Python API wrapper that enables users to search through [Moravska Zemska Knihovna](https://www.digitalniknihovna.cz/mzk) 's documents available online based on query parameters.
 
-The `MZKScraper` class and its methods are used to retrieve IDs of documents that align with the user's specified criteria. After this, these IDs can be used with [IIIF](https://iiif.io/) to retrieve any information about the documents, e.g. the method `get_pages_in_document` returns IDs of document's pages that can be later used to download the pages using the `download_image` method.
+The `MZKScraper` class and its methods are used to retrieve UUIDs of documents that correspond to user's specified criteria. After this, these UUIDs can be used to retrieve any information about the documents via [IIIF](https://iiif.io/), e.g. the method `get_pages_in_document` returns UUIDs of document's pages that can be later used to download the pages using the `download_image` method.
 
-The latest added features now make it possible to generate `ISO690` and `BibTeX` citations from document ID (and optionally page ID).
+The latest added features remove the necessity to dynamically load MZK webpage to get a Solr query.
+
+### Citations
+
+The `mzscraper` can retrieve information for proper document citations via MZK API, that can be converted in batches to `BibTeX` citations from document UUIDs (and optionally page UUID used to retrieve page number) with unique tags.
+
+`ISO690` citations can be generated from `Citation` class, or they can be requested from MZK API as a plain text.
 
 ### Other features
 
-`get_pages_in_document` has multiple parameters (`valid_labels`, `label_preprocessing`, `label_formatting`) that help to reject pages before processing them any further.
+`get_pages_in_document` has multiple parameters (`valid_labels`, `label_preprocessing`, `label_formatting`) that help to filter pages before processing them any further.
 
 Passing the document ID (and optional page ID) to `open_in_browser` method opens up the specified document (and page) in default browser.
 
 ## Usage
 
 Download this project or use it as a submodule in your own project, see [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-Set up a virtual environment and install necessary modules from [requirements.txt](./requirements.txt).
+Set up a virtual environment and install necessary modules from [requirements.txt](./requirements.txt). And install this project as a package for you local environment:
 
-For example usage see [`example.py`](./example.py).
-
-```python
-from path/to/the/scraper/file import MZKScraper
-
-# initialize scaper class
-scraper = MZKScraper()
-
-# get a complete query based on provided params
-query = MZKScraper.get_search_query(authors="Komenský, Jan Amos", access="public", doctypes="monograph")
-
-# scrape the search results
-# this will retrieve document IDs that are on the second and fifth search page
-results = scraper.get_search_results(query, pages=[2, 5], timeout=60)
-
-# now we can use collected IDs and IIIF to get page IDs
-pages_in_first_document = scraper.get_pages_in_document(results[0])
-# page info is stored in a PageData class with attributes:
-# source, page_id and label
-for i, page in enumerate(pages_in_first_document):
-    print(f"{i+1}: {page.page_id} label: {page.label}")
-
-# download first page of the first document
-scraper.download_image(
-    pages_in_first_document[0].page_id,
-    "this_is_first_page_of_the_document.jpg",
-    Path("path/to/your_dir"),
-    verbose=True
-)
+```bash
+python pip install -e ./mzkscraper
 ```
 
-### [How does it work?](./docs/README.md)
+For example usage see [`example.ipynb`](./example.ipynb).
 
 ## Supported query parameters
 
@@ -70,9 +49,9 @@ For more information checkout [Digital Library's documentation](https://www.digi
 
 ## Troubleshooting
 
-### The returned list is empty:
+### The returned list is empty
 
-This may be caused by invalid search query, try to open the link that is displayed along with the "Nothing found" error message. If you end at page with this message: "Attention! No results found. Please, try a different query." the query is most definitely wrong or you filters are too strict.
+This may be caused by invalid search query, verify it manually. If you end at page with message: "Attention! No results found. Please, try a different query." the query is most definitely wrong or you filters are too strict.
 
 Check that the parameters you entered are correct. For example: passing `authors="Komensky, Jan Amos"` you'll end up with empty list, on the other hand `authors="Komenský, Jan Amos"` will be successful. Notice `y/ý`.
 
@@ -80,8 +59,16 @@ Try to search for desired documents manually and then use these filters as metho
 
 If the query looks ok and the page loads with some results when you open it manually, try to increase method's `timeout`. The page is loaded dynamically and in takes significantly longer to load pages with multiple filters activated.
 
+### Handling errors
+
+Sometimes an interaction with MZK through IIIF may result end up raising `4xx` or `5xx` error. To preserve sanity and keeping the scripts rather simple I decided to ignore these errors and to not investigate them any further. In case of error, wait a bit and try again.
+
+## Other resources
+
+- [valid languages for Solr query](docs/languages.json)
+- [valid physical locations for Solr query](docs/physical_locations.json)
+
 ## Useful links
 
 - [IIIF Digital Library docs](https://iiif.digitalniknihovna.cz/)
-- [downloading data from MZK for OMR tasks](https://github.com/v-dvorak/omr-layout-analysis)
 - [how to use MZK Digital Library](https://www.mzk.cz/sluzby/navody/digitalni-knihovna-mzk) - long read, only in Czech
