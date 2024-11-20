@@ -9,3 +9,4 @@ class MZKBase:
         self.mzk_view_page = "https://www.digitalniknihovna.cz/mzk/uuid/uuid:{doc_id}?page=uuid:{page_id}"
         self.mzk_view_document = "https://www.digitalniknihovna.cz/mzk/uuid/uuid:"
         self.document_metadata = "https://api.kramerius.mzk.cz/search/api/client/v7.0/items/uuid:{doc_id}/metadata/mods"
+        self.list_pages_solr = "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?fl=pid,accessibility,model,title.search,licenses,contains_licenses,licenses_of_ancestors,page.type,page.number,page.placement,track.length&q=own_parent.pid:%22uuid:{doc_id}%22&sort=rels_ext_index.sort%20asc&rows=4000&start=0"

@@ -1,14 +1,15 @@
 import datetime
-import inflection
-import requests
 import time
 import urllib.parse
-from PIL import Image
 from io import BytesIO
 from pathlib import Path
+from typing import Callable
+
+import inflection
+import requests
+from PIL import Image
 from seleniumwire import webdriver
 from tqdm import tqdm
-from typing import Callable
 
 from . import ScraperUtils
 from .MZKBase import MZKBase
@@ -192,10 +193,7 @@ class MZKScraper(MZKBase):
     @staticmethod
     def _strip_page_label(label: str) -> str:
         # remove brackets
-        return label.split(" ")[1].replace("(", "").replace(")", "")
-
-    def _get_image_id(self, img_json: dict) -> str:
-        return self.uuid_pattern.search(img_json["thumbnail"][0]["id"]).group(0)
+        return label.split(" ")[0].replace("(", "").replace(")", "")
 
     def get_pages_in_document(
             self,
@@ -215,10 +213,12 @@ class MZKScraper(MZKBase):
 
         :return: List of `ImageData` objects or None, if request fails
         """
-        page_data = ScraperUtils.get_json_from_url(self.iiif_request_url + doc_id)
+        page_data = ScraperUtils.get_json_from_url(self.list_pages_solr.format(doc_id=doc_id))
+
         if page_data is not None:
             return self.extract_page_ids_from_document(
                 page_data,
+                doc_id,
                 valid_labels=valid_labels,
                 label_preprocessing=label_preprocessing,
                 label_formatting=label_formatting,
@@ -229,6 +229,7 @@ class MZKScraper(MZKBase):
     def extract_page_ids_from_document(
             self,
             page_info: dict[str, str],
+            doc_id: str,
             valid_labels: list[str] = None,
             label_preprocessing: Callable[[str], str] = None,
             label_formatting: Callable[[str], str] = inflection.underscore,
@@ -238,6 +239,7 @@ class MZKScraper(MZKBase):
         Returns list of `ImageData` objects.
 
         :param page_info: JSON-like object with page information
+        :param doc_id: parent document ID
         :param valid_labels: list of valid labels strings, if None all labels are valid
         :param label_preprocessing: function that takes text retrieved from IIIF call and returns preprocessed label
         :param label_formatting: function that takes label and returns formatted label
@@ -248,24 +250,17 @@ class MZKScraper(MZKBase):
             label_preprocessing = MZKScraper._strip_page_label
 
         output = []
-        doc_id = page_info["id"]
-        for sheet in page_info["items"]:
-            labels = sheet["label"]["none"]
-            if len(labels) > 1:
-                print("Warning: more labels then expected:", labels)
-            else:
-                try:
-                    label = label_preprocessing(labels[0])
-                    if valid_labels is None or label in valid_labels:
-                        output.append(
-                            PageData(
-                                doc_id,
-                                self._get_image_id(sheet),
-                                label_formatting(label),
-                            )
-                        )
-                except IndexError:
-                    continue
+        for sheet in page_info["response"]["docs"]:
+            label = sheet["page.type"]
+            label = label_preprocessing(label)
+            if valid_labels is None or label in valid_labels:
+                output.append(
+                    PageData(
+                        doc_id,
+                        sheet["pid"][5:],
+                        label_formatting(label),
+                    )
+                )
 
         return output
 
