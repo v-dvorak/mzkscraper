@@ -12,6 +12,7 @@ setup(
         "selenium_wire==5.1.0",
         "setuptools==65.5.0",
         "tqdm==4.66.1",
+        "blinker==1.7.0"
     ],
     author="Vojtech Dvorak",
     url="https://github.com/v-dvorak/mzkscraper",
