@@ -1,77 +1,92 @@
 # MZKScraper
 
-MZKScraper is a Python API wrapper that enables users to search through [Moravska Zemska Knihovna](https://www.digitalniknihovna.cz/mzk) 's documents available online based on query parameters.
+**MZKScraper** is a Python API wrapper for the [Moravská Zemská Knihovna Digital Library](https://www.digitalniknihovna.cz/mzk), enabling users to search, retrieve, and process publicly available documents using flexible query parameters.
 
-The `MZKScraper` class and its methods are used to retrieve UUIDs of documents that correspond to user's specified criteria. After this, these UUIDs can be used to retrieve any information about the documents via [IIIF](https://iiif.io/), e.g. the method `get_pages_in_document` returns UUIDs of document's pages that can be later used to download the pages using the `download_image` method.
+The `MZKScraper` class provides a simple interface for discovering document UUIDs that match your criteria. Once retrieved, these UUIDs can be used to access detailed information or content via the [IIIF](https://iiif.io/) API.
+For example, the `get_pages_in_document` method returns UUIDs of a document’s individual pages, which can then be downloaded with the `download_image` method.
 
-The latest update removes the necessity to dynamically load MZK webpage to get a Solr query.
+## Features
 
-### Citations
+### Document Search
 
-The `mzscraper` can retrieve information for proper document citations via MZK API, that can be converted in batches to `BibTeX` citations from document UUIDs (and optionally page UUID used to retrieve page number) with unique tags.
+- Search the MZK digital collection using multiple parameters (text, authors, keywords, access rights, etc.).
+- Retrieve document UUIDs for further metadata or content queries.
 
-`ISO690` citations can be generated from `Citation` class, or they can be requested from MZK API as a plain text.
+### Citation Retrieval
 
-### Other features
+- Automatically fetch citation data from the MZK API.
+- Convert document UUIDs into **BibTeX** citations with unique tags (optionally including page UUIDs for page-specific references).
+- Generate **ISO 690** citations via the `Citation` class or directly from the API as plain text.
 
-`get_pages_in_document` has multiple parameters (`valid_labels`, `label_preprocessing`, `label_formatting`) that help to filter pages before processing them any further.
+### Page Handling
 
-Passing the document ID (and optional page ID) to `open_in_browser` method opens up the specified document (and page) in default browser.
+- Use `get_pages_in_document` with optional parameters like `valid_labels`, `label_preprocessing`, and `label_formatting` to filter or process pages before downloading.
+- Quickly open any document or page in your default web browser with `open_in_browser(document_id, page_id=None)`.
 
-## Usage
+## Installation
 
-Download this project or use it as a submodule in your own project, see [Git Submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-Set up a virtual environment and install necessary modules from [requirements.txt](./requirements.txt). And install this project as a package for you local environment:
+Install directly from GitHub:
 
 ```bash
-python pip install -e ./mzkscraper
+pip install git+https://github.com/v-dvorak/mzkscraper
 ```
 
-For example usage see [`example.ipynb`](./example.ipynb).
+Or use it as a **Git submodule** in your own project:
 
-## Supported query parameters
+```bash
+git submodule add https://github.com/v-dvorak/mzkscraper
+cd mzkscraper
+python -m pip install -r requirements.txt
+python -m pip install -e .
+```
 
-- text_query
-- access
-- keywords
-- authors
-- languages
-- licenses
-- locations
-- publishers
-- places
-- genres
-- doctypes
-- published_from
-- published_to
+For example usage, see [`example.ipynb`](./example.ipynb).
 
-For more information checkout [Digital Library's documentation](https://www.digitalniknihovna.cz/help).
+## Supported Query Parameters
+
+* `text_query`
+* `access`
+* `keywords`
+* `authors`
+* `languages`
+* `licenses`
+* `locations`
+* `publishers`
+* `places`
+* `genres`
+* `doctypes`
+* `published_from`
+* `published_to`
+
+For full details, refer to the [Digital Library documentation](https://www.digitalniknihovna.cz/help).
 
 ## Troubleshooting
 
-### The returned list is empty
+### Empty Results
 
-This may be caused by invalid search query, verify it manually. If you end at page with message: "Attention! No results found. Please, try a different query." the query is most definitely wrong or you filters are too strict.
+If no results are returned:
 
-Check that the parameters you entered are correct. For example: passing `authors="Komensky, Jan Amos"` you'll end up with empty list, on the other hand `authors="Komenský, Jan Amos"` will be successful. Notice `y/ý`.
+1. **Validate your query manually** in the digital library.
+   If you see the message *“Attention! No results found. Please, try a different query.”*, the parameters may be invalid or overly restrictive.
+2. **Check spelling and diacritics.**
+   Example:
+   - `authors="Komensky, Jan Amos"` will not find anything,
+   - `authors="Komenský, Jan Amos"` will return a list of books.
+3. **Try longer timeouts.**
+   Pages with multiple filters take longer to load. Increase the `timeout` parameter if necessary.
 
-Try to search for desired documents manually and then use these filters as method params. After all, I made this scraper after knowing exactly how to filter out desired documents.
+### Handling API Errors
 
-If the query looks ok and the page loads with some results when you open it manually, try to increase method's `timeout`. The page is loaded dynamically and in takes significantly longer to load pages with multiple filters activated.
+Interactions with MZK or IIIF may occasionally result in `4xx` or `5xx` errors. These are most probably issues with the source service - wait a bit and retry.
+For simplicity, `MZKScraper` does not attempt to handle or retry these automatically.
 
-### Handling errors
+## Additional Resources
 
-Sometimes an interaction with MZK through IIIF may result end up raising `4xx` or `5xx` error. To preserve sanity and keeping the scripts rather simple I decided to ignore these errors and to not investigate them any further. In case of error, wait a bit and try again.
-
-## Other resources
-
-- [valid languages for Solr query](docs/languages.json)
-- [valid physical locations for Solr query](docs/physical_locations.json)
-
-
+- [Valid languages for Solr query](docs/languages.json)
+- [Valid physical locations for Solr query](docs/physical_locations.json)
 - [Solr request generator from Kramerius](https://github.com/ceskaexpedice/kramerius-web-client/blob/master/src/app/services/solr.service.ts)
 
-## Useful links
+## Useful Links
 
-- [IIIF Digital Library docs](https://iiif.digitalniknihovna.cz/)
-- [how to use MZK Digital Library](https://www.mzk.cz/sluzby/navody/digitalni-knihovna-mzk) - long read, only in Czech
+- [IIIF Digital Library documentation](https://iiif.digitalniknihovna.cz/)
+- [How to use the MZK Digital Library (Czech only)](https://www.mzk.cz/sluzby/navody/digitalni-knihovna-mzk)
