@@ -3,7 +3,7 @@ import time
 import urllib.parse
 from io import BytesIO
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional, Literal
 
 import inflection
 import requests
@@ -14,7 +14,7 @@ from tqdm import tqdm
 from . import ScraperUtils
 from .MZKBase import MZKBase
 from .PageData import PageData
-from .QueryFactory.QueryFactory import SolrQueryFactory
+from .QueryFactory import SolrQueryFactory
 
 
 class MZKScraper(MZKBase):
@@ -25,7 +25,7 @@ class MZKScraper(MZKBase):
     def retrieve_document_ids_by_solr_query(
             self,
             query: str,
-            requested_document_count: int | str = "all",
+            requested_document_count: int | Literal["all"] = "all",
             batch_size: int = 100,
     ) -> list[str]:
         """
@@ -55,6 +55,7 @@ class MZKScraper(MZKBase):
                 + query
                 + f"&rows={min(batch_size, to_retrieve)}&start={offset}"
             )
+            assert result is not None
 
             for doc in result["response"]["docs"]:
                 output.append(doc["pid"][5:])
@@ -73,26 +74,28 @@ class MZKScraper(MZKBase):
         result = ScraperUtils.get_json_from_url(
             "https://api.kramerius.mzk.cz/search/api/client/v7.0/search?" + query + "&rows=0&start=0"
         )
+        assert result is not None
+
         return int(result["response"]["numFound"])
 
     def construct_solr_query_with_qf(
             self,
             text_query=None,
 
-            access: str = None,
-            licences: list[str] | str = None,
-            doctypes: list[str] | str = None,
-            published_from: str | int = None,
-            published_to: str | int = None,
+            access: Optional[str] = None,
+            licences: Optional[list[str] | str] = None,
+            doctypes: Optional[list[str] | str] = None,
+            published_from: Optional[str | int] = None,
+            published_to: Optional[str | int] = None,
 
-            places: list[str] | str = None,
-            publishers: list[str] | str = None,
-            locations: list[str] | str = None,
-            languages: list[str] | str = None,
-            keywords: list[str] | str = None,
-            authors: list[str] | str = None,
-            geonames: list[str] | str = None,
-            genres: list[str] | str = None
+            places: Optional[list[str] | str] = None,
+            publishers: Optional[list[str] | str] = None,
+            locations: Optional[list[str] | str] = None,
+            languages: Optional[list[str] | str] = None,
+            keywords: Optional[list[str] | str] = None,
+            authors: Optional[list[str] | str] = None,
+            geonames: Optional[list[str] | str] = None,
+            genres: Optional[list[str] | str] = None
     ) -> str:
         """
         Constructs Solr solr_query for document retrieval using reverse-engineered QueryFactory.
@@ -182,8 +185,9 @@ class MZKScraper(MZKBase):
                     driver.quit()
                     return MZKScraper._clean_up_query(request.url)
         except Exception as e:
-            print(f"Error: {e}")
             driver.quit()
+            raise
+        raise RuntimeError()
 
     @staticmethod
     def _clean_up_query(query: str) -> str:
@@ -198,8 +202,8 @@ class MZKScraper(MZKBase):
     def get_pages_in_document(
             self,
             doc_id: str,
-            valid_labels: list[str] = None,
-            label_preprocessing: Callable[[str], str] = None,
+            valid_labels: Optional[list[str]] = None,
+            label_preprocessing: Optional[Callable[[str], str]] = None,
             label_formatting: Callable[[str], str] = inflection.underscore,
     ) -> list[PageData] | None:
         """
@@ -215,7 +219,17 @@ class MZKScraper(MZKBase):
         """
         page_data = ScraperUtils.get_json_from_url(self.list_pages_solr.format(doc_id=doc_id))
 
-        if page_data is not None:
+        if page_data is None:
+            return None
+        
+        def is_konvolut(page_data: dict[str, dict]) -> bool:
+            return all(sheet.get("page.number") is None for sheet in page_data["response"]["docs"])
+
+        konvolut = is_konvolut(page_data)
+        if konvolut:
+            print(f"Document {doc_id} is a Konvolut, resolving")
+
+        if not konvolut:
             return self.extract_page_ids_from_document(
                 page_data,
                 doc_id,
@@ -223,15 +237,28 @@ class MZKScraper(MZKBase):
                 label_preprocessing=label_preprocessing,
                 label_formatting=label_formatting,
             )
+        
         else:
-            return None
+            output_pages: list[PageData] = []
+            for sub_doc in page_data["response"]["docs"]:
+                sub_page_data = ScraperUtils.get_json_from_url(self.list_pages_solr.format(doc_id=sub_doc["pid"][5:]))
+                if sub_page_data is not None:
+                    output_pages.extend(
+                        self.extract_page_ids_from_document(
+                            sub_page_data,
+                            doc_id,
+                            valid_labels=valid_labels,
+                            label_preprocessing=label_preprocessing,
+                            label_formatting=label_formatting,
+                    ))
+            return output_pages
 
     def extract_page_ids_from_document(
             self,
-            page_info: dict[str, str],
+            page_info: dict[str, dict],
             doc_id: str,
-            valid_labels: list[str] = None,
-            label_preprocessing: Callable[[str], str] = None,
+            valid_labels: Optional[list[str]] = None,
+            label_preprocessing: Optional[Callable[[str], str]] = None,
             label_formatting: Callable[[str], str] = inflection.underscore,
     ) -> list[PageData]:
         """
@@ -300,7 +327,7 @@ class MZKScraper(MZKBase):
         else:
             print(f"Error: {response.status_code}")
 
-    def get_image(self, img_id: str, size: str = "^!640,640", verbose=False) -> Image:
+    def get_image(self, img_id: str, size: str = "^!640,640", verbose=False) -> Optional[Image.ImageFile.ImageFile]:
         """
         Given an image ID downloads it to specified directory.
 

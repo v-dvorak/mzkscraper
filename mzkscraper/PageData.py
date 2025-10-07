@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 
 class PageData:
@@ -10,7 +11,7 @@ class PageData:
         self.source = doc_id
         self.page_id = page_id
         self.label = label
-        self.system_id: int = None
+        self.system_id: Optional[int] = None
 
     def __str__(self):
         return f'{self.source} {self.page_id} {self.label}'
@@ -21,12 +22,12 @@ class PageDataEncoder(json.JSONEncoder):
     Encoder for `json` library.
     """
 
-    def default(self, obj):
-        if isinstance(obj, PageData):
+    def default(self, o):
+        if isinstance(o, PageData):
             return {
-                "source": obj.source,
-                "img_id": obj.page_id,
-                "label": obj.label,
-                "id": obj.system_id
+                "source": o.source,
+                "img_id": o.page_id,
+                "label": o.label,
+                "id": o.system_id
             }
-        return super().default(obj)
+        return super().default(o)

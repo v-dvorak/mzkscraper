@@ -1,0 +1,1 @@
+from .QueryFactory import SolrQueryFactory
