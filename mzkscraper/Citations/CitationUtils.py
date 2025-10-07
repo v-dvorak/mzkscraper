@@ -1,7 +1,8 @@
 import unicodedata
+from typing import Any, Iterable
 
 
-def join_non_empty(sep: str, to_join: list[any]) -> str:
+def join_non_empty(sep: str, to_join: Iterable[Any]) -> str:
     """
     Given a list of strings, join them together and return the joined string.
 

@@ -1,13 +1,12 @@
 from collections import Counter
-from typing import Callable
-
+from typing import Callable, Optional
 import nltk
 from nltk.corpus import stopwords
 
 from . import CitationUtils
 from .ICitation import ICitation
 
-nltk.download('stopwords')
+nltk.download("stopwords")
 
 
 class CitationBibTeX:
@@ -19,9 +18,9 @@ class CitationBibTeX:
             citation: ICitation,
             template: str = "@misc",
             indent: int = 4,
-            used_tags: list[str] = None,
+            used_tags: Optional[list[str]] = None,
             default_author: str = "",
-            tag_gen: Callable[[ICitation], str] = None,
+            tag_gen: Optional[Callable[[ICitation], str]] = None,
     ) -> str:
         """
         Generates a string that represents a BibTeX citation.
@@ -75,13 +74,13 @@ class CitationBibTeX:
         if citation.authors[0][1] is not None:
             tag = CitationUtils.strip_accents(citation.authors[0][1])
             if citation.date_issued is not None:
-                return tag + CitationUtils.strip_date(citation.date_issued)
+                return tag + CitationUtils.strip_date(str(citation.date_issued))
             return tag
 
         elif citation.authors[0][0] is not None:
             tag = CitationUtils.strip_accents(citation.authors[0][0])
             if citation.date_issued is not None:
-                return tag + CitationUtils.strip_date(citation.date_issued)
+                return tag + CitationUtils.strip_date(str(citation.date_issued))
             return tag
 
         else:
@@ -91,7 +90,7 @@ class CitationBibTeX:
                               for word in citation.title.split() if word not in stopwords_dict
                           ][:2])
             if citation.date_issued is not None:
-                return tag + CitationUtils.strip_date(citation.date_issued)
+                return tag + CitationUtils.strip_date(str(citation.date_issued))
             return tag
 
     @staticmethod

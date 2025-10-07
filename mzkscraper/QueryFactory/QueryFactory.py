@@ -1,10 +1,12 @@
 import datetime
 import json
 import urllib.parse
-from importlib import resources as impresources
+from pathlib import Path
+from typing import Optional
 
-from . import templates
-from ..Citations.CitationUtils import join_non_empty
+from ..Citations import join_non_empty
+
+TEMPLATES_DIR = Path(__file__).parent
 
 
 class SolrQueryFactory:
@@ -12,16 +14,13 @@ class SolrQueryFactory:
         self.query_base = "(model:monograph OR model:periodical OR (model:collection AND collection.is_standalone:true) OR model:graphic OR model:map OR model:sheetmusic OR model:soundrecording OR model:archive OR model:manuscript OR model:convolute OR model:monographunit)"
         self.text_query_base = "_query_:\"{!edismax qf='titles.search^10 authors.search^2 keywords.search text_ocr^0.1 id_isbn shelf_locators' bq='(level:0)^200' bq='(model:page)^0.1' v=$q1}\""
 
-        inp_file = impresources.files(templates) / "access_tags.json"
-        with inp_file.open("rt") as f:
+        with open(TEMPLATES_DIR / "access_tags.json", "r", encoding="utf8") as f:
             self.access: dict[str, str] = json.load(f)
 
-        inp_file = impresources.files(templates) / "doctypes_formatting.json"
-        with inp_file.open("rt") as f:
+        with open(TEMPLATES_DIR /  "doctypes_formatting.json", "r", encoding="utf8") as f:
             self.doctypes: dict[str, str] = json.load(f)
 
-        inp_file = impresources.files(templates) / "licences_tags.json"
-        with inp_file.open("rt") as f:
+        with open(TEMPLATES_DIR / "licences_tags.json", "r", encoding="utf8") as f:
             self.licences: dict[str, str] = json.load(f)
 
     def _get_licence_part(self, licences: list[str]) -> str:
@@ -46,22 +45,22 @@ class SolrQueryFactory:
 
     def create_query(
             self,
-            text_query: str = None,
+            text_query: Optional[str] = None,
 
-            access: str = None,
-            licences: list[str] | str = None,
-            doctypes: list[str] | str = None,
-            published_from: str | int = None,
-            published_to: str | int = None,
+            access: Optional[str] = None,
+            licences: Optional[list[str] | str] = None,
+            doctypes: Optional[list[str] | str] = None,
+            published_from: Optional[str | int] = None,
+            published_to: Optional[str | int] = None,
 
-            places: list[str] | str = None,
-            publishers: list[str] | str = None,
-            locations: list[str] | str = None,
-            languages: list[str] | str = None,
-            keywords: list[str] | str = None,
-            authors: list[str] | str = None,
-            geonames: list[str] | str = None,
-            genres: list[str] | str = None
+            places: Optional[list[str] | str] = None,
+            publishers: Optional[list[str] | str] = None,
+            locations: Optional[list[str] | str] = None,
+            languages: Optional[list[str] | str] = None,
+            keywords: Optional[list[str] | str] = None,
+            authors: Optional[list[str] | str] = None,
+            geonames: Optional[list[str] | str] = None,
+            genres: Optional[list[str] | str] = None
     ) -> str:
         if isinstance(licences, str):
             licences = [licences]
@@ -85,11 +84,10 @@ class SolrQueryFactory:
         if isinstance(genres, str):
             genres = [genres]
 
-        if published_from is not None or published_to is not None:
-            if published_from is None:
-                published_from = 0
-            if published_to is None:
-                published_to = datetime.datetime.now().year
+        if published_from is None:
+            published_from = 0
+        if published_to is None:
+            published_to = datetime.datetime.now().year
 
         return (
             urllib.parse.quote_plus(
