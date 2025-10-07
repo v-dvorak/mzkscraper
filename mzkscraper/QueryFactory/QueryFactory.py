@@ -6,7 +6,7 @@ from typing import Optional
 
 from ..Citations import join_non_empty
 
-TEMPLATES_DIR = Path(__file__).parent
+TEMPLATES_DIR = Path(__file__).parent / "assets"
 
 
 class SolrQueryFactory:
