@@ -82,11 +82,10 @@ For simplicity, `MZKScraper` does not attempt to handle or retry these automatic
 
 ## Additional Resources
 
+- [Swagger Kramerius API Documentation](https://api.kramerius.mzk.cz/search/openapi/client/v7.0/)
 - [Valid languages for Solr query](docs/languages.json)
 - [Valid physical locations for Solr query](docs/physical_locations.json)
 - [Solr request generator from Kramerius](https://github.com/ceskaexpedice/kramerius-web-client/blob/master/src/app/services/solr.service.ts)
-
-## Useful Links
-
 - [IIIF Digital Library documentation](https://iiif.digitalniknihovna.cz/)
 - [How to use the MZK Digital Library (Czech only)](https://www.mzk.cz/sluzby/navody/digitalni-knihovna-mzk)
+
